@@ -80,7 +80,7 @@
     <main class="hero">
       <section class="card" aria-labelledby="why-title">
         <h2 id="why-title">Hvorfor er plastposer et problem?</h2>
-        <p class="muted">Plastposer ser uskyldige ut — tynne, lettvinte. Men de hoper seg opp i naturen, brytes langsomt ned og skader dyreliv og økosystemer.</p>
+        <p class="muted">Plastposer er noe vi alltid har brukt, søte pg snille. Men i naturen er den ikke like fin. Den brytes langsomt ned og skader dyreliv og økosystemer.</p>
         <div class="stats" role="list">
           <div class="stat" role="listitem">
             <div class="num" data-target="50000000000">0</div>
@@ -122,13 +122,7 @@
         </div>
       </section>
 
-      <aside class="card bag-visual" aria-label="Illustrasjon av en gjenbrukbar pose">
-        <div class="bag" role="img" aria-label="En grønn gjenbrukbar pose med et blad-ikon">
-          <div class="leaf" aria-hidden>🌿</div>
-          <div class="muted">Velg gjenbruk</div>
-        </div>
-      </aside>
-    </main>
+      <img src="https://i.etsystatic.com/41821163/r/il/66f1f4/4873972700/il_1080xN.4873972700_qzpa.jpg" alt="climate shoppingbag" style="width: 530px;height: 400px"
 
     <section class="card" aria-labelledby="tips">
       <h2 id="tips">Tips som faktisk hjelper</h2>
@@ -142,14 +136,19 @@
         <h3>Rask quiz — hvor mye vet du?</h3>
         <div class="question" id="q1">Hvor mange ganger må en gjenbrukbar pose brukes for å slå miljøregnskapet til en vanlig plastpose (omtrent)?</div>
         <button class="option" data-correct="false">1 gang</button>
-        <button class="option" data-correct="true">20–30 ganger</button>
-        <button class="option" data-correct="false">100 ganger</button>
+        <button class="option" data-correct="true">10 ganger</button>
+        <button class="option" data-correct="false">40 ganger</button>
         <div id="quizResult" class="muted" style="margin-top:8px"></div>
       </div>
     </section>
 
     <section class="card" aria-labelledby="resources">
-      <h2 id="resources">Ressurser og videre lesning</h2>
+      <h2 id="resources">Litt fakta</h2>
+     <ul class="muted">
+         <li class="muted"> En plastpose slipper ut cirka 20 gram CO2, og selvom det ikke er så mye, blir det mye siden det blir produsert milliarder av poser i året. </li>
+         <li class="muted"> Selvom du ikke kaster eller legger fra deg plastposer i naturen, er du med på forsøplingen. Plastposene tåler ikke så mye, og blir fort ødelagte, da kommer det ut mikroplast som er skadelig for naturen. </li>
+         <li class="muted"> En bærepose i tøy kan holde flere hundre ganger før den blir ødelagt, da sparer du både penger og miljøet.  </li>
+     </ul>
       <p class="muted">Dette var bare et lite skoleprosjekt, men hvis du ønsker å lese mer om temaet eller ønsker å støtte, kan du trykke på lenken til WWF under.</p>
       <a href="https://www.wwf.no/dyr-og-natur/hav-og-fiske">Her er kan du lese mer om plast i havet </a>
     </section>
@@ -183,7 +182,7 @@
           const correct = btn.dataset.correct === 'true';
           const result = document.getElementById('quizResult');
           document.querySelectorAll('.quiz .option').forEach(b=>b.classList.remove('correct','wrong'));
-          if(correct){ btn.classList.add('correct'); result.textContent = 'Riktig! En gjenbrukbar pose må ofte brukes mange titalls ganger for å være mer miljøvennlig enn engangsplast.' }
+          if(correct){ btn.classList.add('correct'); result.textContent = 'Riktig! Etter rundt 10 ganger, har den gjenbrukbare posen blitt mer miljøvennlig.' }
           else { btn.classList.add('wrong'); result.textContent = 'Dessverre nei — prøv igjen eller les tipsene ovenfor.' }
         });
       });
@@ -344,3 +343,4 @@ function updateGame(){
 
 </body>
 </html>
+
