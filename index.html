@@ -210,122 +210,149 @@
       <button class="btn" onclick="startGame('toey')">👕 Tøypose</button>
     </div>
   </div>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-  <script>
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.getElementById('year').textContent = new Date().getFullYear();
+  const nums=document.querySelectorAll('.num');
+  nums.forEach(el=>{
+    const target=Number(el.dataset.target)||0;
+    const duration=1800;
+    let start=0;
+    const step=Math.ceil(target/(duration/30));
+    const id=setInterval(()=>{
+      start+=step;
+      if(start>=target){start=target;el.textContent=formatNumber(target);clearInterval(id);}
+      else el.textContent=formatNumber(start);
+    },30);
+  });
 
-    const nums=document.querySelectorAll('.num');
-    nums.forEach(el=>{
-      const target=Number(el.dataset.target)||0;
-      const duration=1800;
-      let start=0;
-      const step=Math.ceil(target/(duration/30));
-      const id=setInterval(()=>{
-        start+=step;
-        if(start>=target){start=target;el.textContent=formatNumber(target);clearInterval(id);}
-        else el.textContent=formatNumber(start);
-      },30);
-    });
-
-    document.querySelectorAll('.quiz .option').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const correct=btn.dataset.correct==='true';
-        const result=document.getElementById('quizResult');
-        document.querySelectorAll('.quiz .option').forEach(b=>b.classList.remove('correct','wrong'));
-        if(correct){btn.classList.add('correct');result.textContent='Riktig! Etter rundt 10 ganger blir posen mer miljøvennlig.'}
-        else {btn.classList.add('wrong');result.textContent='Feil — prøv igjen!'}
-      });
-    });
-
-    document.getElementById('pledgeBtn').addEventListener('click',()=>{
-      const agreed=confirm('Vil du love å bruke gjenbrukbare poser når du kan?');
-      if(agreed){localStorage.setItem('pledge','yes');alert('Takk! Pakt lagret i nettleseren.');}
-    });
-
-    document.getElementById('shareBtn').addEventListener('click',async()=>{
-      const data={title:document.title,text:'Si nei til plastposer — bruk gjenbrukbare poser!',url:location.href};
-      if(navigator.share){try{await navigator.share(data);}catch(e){}}
-      else {await navigator.clipboard.writeText(location.href);alert('Lenke kopiert!');}
+  document.querySelectorAll('.quiz .option').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const correct=btn.dataset.correct==='true';
+      const result=document.getElementById('quizResult');
+      document.querySelectorAll('.quiz .option').forEach(b=>b.classList.remove('correct','wrong'));
+      if(correct){btn.classList.add('correct');result.textContent='Riktig! Etter rundt 10 ganger blir posen mer miljøvennlig.'}
+      else {btn.classList.add('wrong');result.textContent='Feil — prøv igjen!'}
     });
   });
 
-  function formatNumber(n){
-    if(n>=1e9) return (n/1e9).toFixed(1)+' mrd';
-    if(n>=1e6) return (n/1e6).toFixed(1)+' mill';
-    return n.toLocaleString('no-NB');
-  }
+  document.getElementById('pledgeBtn').addEventListener('click',()=>{
+    const agreed=confirm('Vil du love å bruke gjenbrukbare poser når du kan?');
+    if(agreed){localStorage.setItem('pledge','yes');alert('Takk! Pakt lagret i nettleseren.');}
+  });
 
-  const playGameBtn=document.getElementById('playGameBtn');
-  const gameOverlay=document.getElementById('gameOverlay');
-  const closeGameBtn=document.getElementById('closeGame');
-  const gameCanvas=document.getElementById('gameCanvas');
-  const ctx=gameCanvas.getContext('2d');
+  document.getElementById('shareBtn').addEventListener('click',async()=>{
+    const data={title:document.title,text:'Si nei til plastposer — bruk gjenbrukbare poser!',url:location.href};
+    if(navigator.share){try{await navigator.share(data);}catch(e){}}
+    else {await navigator.clipboard.writeText(location.href);alert('Lenke kopiert!');}
+  });
+});
 
-  let basket={x:175,y:520,width:50,height:50};
-  let apples=[];
-  let speed=2;
-  let caught=0;
-  let limit=10;
-  let gameInterval;
-  let poseType='';
-  let isTouching=false;
+function formatNumber(n){
+  if(n>=1e9) return (n/1e9).toFixed(1)+' mrd';
+  if(n>=1e6) return (n/1e6).toFixed(1)+' mill';
+  return n.toLocaleString('no-NB');
+}
 
-  playGameBtn.addEventListener('click',()=>{gameOverlay.style.display='flex';});
-  closeGameBtn.addEventListener('click',()=>{gameOverlay.style.display='none';clearInterval(gameInterval);});
+const playGameBtn=document.getElementById('playGameBtn');
+const gameOverlay=document.getElementById('gameOverlay');
+const closeGameBtn=document.getElementById('closeGame');
+const gameCanvas=document.getElementById('gameCanvas');
+const ctx=gameCanvas.getContext('2d');
 
-  function startGame(type){
-    poseType=type;apples=[];caught=0;speed=2;
-    limit=(type==='plast')?8:(type==='papir')?15:30;
-    document.addEventListener('keydown',moveBasketKeys);
-    gameCanvas.addEventListener('touchstart',handleTouchStart);
-    gameCanvas.addEventListener('touchmove',handleTouchMove);
-    gameInterval=setInterval(updateGame,20);
-  }
+// ✨ Nytt meldingsoverlegg:
+const messageBox=document.createElement('div');
+messageBox.style.position='fixed';
+messageBox.style.top='50%';
+messageBox.style.left='50%';
+messageBox.style.transform='translate(-50%, -50%)';
+messageBox.style.background='white';
+messageBox.style.padding='20px';
+messageBox.style.borderRadius='12px';
+messageBox.style.boxShadow='0 4px 20px rgba(0,0,0,0.2)';
+messageBox.style.display='none';
+messageBox.style.zIndex='10000';
+messageBox.style.textAlign='center';
+messageBox.innerHTML=`<p id="msgText" style="margin-bottom:10px;"></p>
+<button id="msgBtn" class="btn">OK</button>`;
+document.body.appendChild(messageBox);
 
-  function moveBasketKeys(e){
-    if((e.key==='ArrowLeft'||e.key==='a'||e.key==='A')&&basket.x>0)basket.x-=15;
-    if((e.key==='ArrowRight'||e.key==='d'||e.key==='D')&&basket.x<gameCanvas.width-basket.width)basket.x+=15;
-  }
+function showMessage(text,callback){
+  document.getElementById('msgText').textContent=text;
+  messageBox.style.display='block';
+  document.getElementById('msgBtn').onclick=()=>{
+    messageBox.style.display='none';
+    if(callback) callback();
+  };
+}
 
-  function handleTouchStart(e){
-    isTouching=true;
-    const touch=e.touches[0];
-    basket.x=touch.clientX-gameCanvas.getBoundingClientRect().left-basket.width/2;
-  }
+let basket={x:175,y:520,width:50,height:50};
+let apples=[];
+let speed=2;
+let caught=0;
+let limit=10;
+let gameInterval;
+let poseType='';
+let isTouching=false;
 
-  function handleTouchMove(e){
-    if(!isTouching)return;
-    const touch=e.touches[0];
-    let newX=touch.clientX-gameCanvas.getBoundingClientRect().left-basket.width/2;
-    newX=Math.max(0,Math.min(newX,gameCanvas.width-basket.width));
-    basket.x=newX;
-  }
+playGameBtn.addEventListener('click',()=>{gameOverlay.style.display='flex';});
+closeGameBtn.addEventListener('click',()=>{gameOverlay.style.display='none';clearInterval(gameInterval);});
 
-  function updateGame(){
-    ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
-    ctx.font=(basket.height*1.5)+"px Arial";
-    let emoji=poseType==='papir'?'📦':poseType==='toey'?'👕':'🛍️';
-    ctx.fillText(emoji,basket.x,basket.y+basket.height*1.2);
+function startGame(type){
+  poseType=type;apples=[];caught=0;speed=2;
+  limit=(type==='plast')?8:(type==='papir')?15:30;
+  document.addEventListener('keydown',moveBasketKeys);
+  gameCanvas.addEventListener('touchstart',handleTouchStart);
+  gameCanvas.addEventListener('touchmove',handleTouchMove);
+  clearInterval(gameInterval);
+  gameInterval=setInterval(updateGame,20);
+}
 
-    if(Math.random()<0.02)apples.push({x:Math.random()*380,y:0});
-    for(let i=0;i<apples.length;i++){
-      const a=apples[i];a.y+=speed;
-      ctx.beginPath();ctx.arc(a.x,a.y,10,0,Math.PI*2);ctx.fillStyle='red';ctx.fill();
-      if(a.y>basket.y&&a.x>basket.x&&a.x<basket.x+basket.width){apples.splice(i,1);caught++;speed+=0.05;}
-      if(a.y>600)apples.splice(i,1);
+function moveBasketKeys(e){
+  if((e.key==='ArrowLeft'||e.key==='a'||e.key==='A')&&basket.x>0)basket.x-=15;
+  if((e.key==='ArrowRight'||e.key==='d'||e.key==='D')&&basket.x<gameCanvas.width-basket.width)basket.x+=15;
+}
+
+function handleTouchStart(e){
+  isTouching=true;
+  const touch=e.touches[0];
+  basket.x=touch.clientX-gameCanvas.getBoundingClientRect().left-basket.width/2;
+}
+
+function handleTouchMove(e){
+  if(!isTouching)return;
+  const touch=e.touches[0];
+  let newX=touch.clientX-gameCanvas.getBoundingClientRect().left-basket.width/2;
+  newX=Math.max(0,Math.min(newX,gameCanvas.width-basket.width));
+  basket.x=newX;
+}
+
+function updateGame(){
+  ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  ctx.font=(basket.height*1.5)+"px Arial";
+  let emoji=poseType==='papir'?'📦':poseType==='toey'?'👕':'🛍️';
+  ctx.fillText(emoji,basket.x,basket.y+basket.height*1.2);
+
+  if(Math.random()<0.02)apples.push({x:Math.random()*380,y:0});
+  for(let i=0;i<apples.length;i++){
+    const a=apples[i];a.y+=speed;
+    ctx.beginPath();ctx.arc(a.x,a.y,10,0,Math.PI*2);ctx.fillStyle='red';ctx.fill();
+    if(a.y>basket.y&&a.x>basket.x&&a.x<basket.x+basket.width){
+      apples.splice(i,1);caught++;speed+=0.05;
     }
-
-    ctx.fillStyle='black';ctx.font='16px Arial';
-    ctx.fillText(`Epler fanget: ${caught}`,10,20);
-
-    if(caught>=limit){
-      alert(poseType==='plast'?`Plastposen gikk i stykker etter ${caught} epler 😢`
-            :poseType==='papir'?`Papirposen holdt til ${caught} epler 🍎`
-            :`Tøyposen holdt imponerende ${caught} epler 💪`);
-      clearInterval(gameInterval);
-    }
+    if(a.y>600)apples.splice(i,1);
   }
-  </script>
-</body>
-</html>
+
+  ctx.fillStyle='black';ctx.font='16px Arial';
+  ctx.fillText(`Epler fanget: ${caught}`,10,20);
+
+  if(caught>=limit){
+    clearInterval(gameInterval);
+    let msg=poseType==='plast'?`Plastposen gikk i stykker etter ${caught} epler 😢`
+          :poseType==='papir'?`Papirposen holdt til ${caught} epler 🍎`
+          :`Tøyposen holdt imponerende ${caught} epler 💪`;
+    showMessage(msg,()=>{gameOverlay.style.display='none';});
+  }
+}
+</script>
