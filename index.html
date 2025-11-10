@@ -210,50 +210,94 @@
       <button class="btn" onclick="startGame('toey')">👕 Tøypose</button>
     </div>
   </div>
+
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  const nums=document.querySelectorAll('.num');
+  // animasjon for tall
+  const nums = document.querySelectorAll('.num');
   nums.forEach(el=>{
-    const target=Number(el.dataset.target)||0;
-    const duration=1800;
-    let start=0;
-    const step=Math.ceil(target/(duration/30));
-    const id=setInterval(()=>{
-      start+=step;
-      if(start>=target){start=target;el.textContent=formatNumber(target);clearInterval(id);}
-      else el.textContent=formatNumber(start);
+    const target = Number(el.dataset.target) || 0;
+    const duration = 1800;
+    let start = 0;
+    const step = Math.ceil(target / (duration / 30));
+    const id = setInterval(()=>{
+      start += step;
+      if(start >= target){ start = target; el.textContent = formatNumber(target); clearInterval(id); }
+      else el.textContent = formatNumber(start);
     },30);
   });
 
+  // quiz
   document.querySelectorAll('.quiz .option').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const correct=btn.dataset.correct==='true';
-      const result=document.getElementById('quizResult');
+      const correct = btn.dataset.correct === 'true';
+      const result = document.getElementById('quizResult');
       document.querySelectorAll('.quiz .option').forEach(b=>b.classList.remove('correct','wrong'));
-      if(correct){btn.classList.add('correct');result.textContent='Riktig! Etter rundt 10 ganger blir posen mer miljøvennlig.'}
-      else {btn.classList.add('wrong');result.textContent='Feil — prøv igjen!'}
+      if(correct){ btn.classList.add('correct'); result.textContent = 'Riktig! Etter rundt 10 ganger, har den gjenbrukbare posen blitt mer miljøvennlig.' }
+      else { btn.classList.add('wrong'); result.textContent = 'Dessverre nei — prøv igjen eller les tipsene ovenfor.' }
     });
   });
 
-  document.getElementById('pledgeBtn').addEventListener('click',()=>{
-    const agreed=confirm('Vil du love å bruke gjenbrukbare poser når du kan?');
-    if(agreed){localStorage.setItem('pledge','yes');alert('Takk! Pakt lagret i nettleseren.');}
+  // === PAKTBOBLE ===
+  const pledgeBtn = document.getElementById('pledgeBtn');
+  const shareBtn = document.getElementById('shareBtn');
+
+  // lag boblen
+  const bubble = document.createElement('div');
+  bubble.id = 'pledgeBubble';
+  bubble.style = `
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+  `;
+  bubble.innerHTML = `
+    <div style="background:white; padding:24px; border-radius:16px; max-width:320px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+      <h3>🌍 Ta en pakt</h3>
+      <p style="color:#555; font-size:0.95rem; margin-bottom:14px;">
+        Vil du love å bruke gjenbrukbare poser når du kan?
+      </p>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button id="confirmPledge" class="btn">Ja, jeg lover 💚</button>
+        <button id="cancelPledge" class="btn ghost">Lukk</button>
+      </div>
+      <div style="margin-top:14px;">
+        <button id="shareInsideBubble" class="btn" style="background:#2aa86a;">Del</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(bubble);
+
+  pledgeBtn.addEventListener('click',()=>{ bubble.style.display='flex'; });
+
+  bubble.querySelector('#cancelPledge').addEventListener('click',()=>{
+    bubble.style.display='none';
   });
 
-  document.getElementById('shareBtn').addEventListener('click',async()=>{
-    const data={title:document.title,text:'Si nei til plastposer — bruk gjenbrukbare poser!',url:location.href};
-    if(navigator.share){try{await navigator.share(data);}catch(e){}}
-    else {await navigator.clipboard.writeText(location.href);alert('Lenke kopiert!');}
+  bubble.querySelector('#confirmPledge').addEventListener('click',()=>{
+    localStorage.setItem('pledge','yes');
+    alert('Takk! Du har tatt en pakt 💚');
+    bubble.style.display='none';
+  });
+
+  // del-knappen inni boblen
+  bubble.querySelector('#shareInsideBubble').addEventListener('click', async ()=>{
+    const shareData = {title:document.title,text:'Si nei til plastposer — bruk gjenbrukbare poser!',url:location.href};
+    if(navigator.share){
+      try{ await navigator.share(shareData); }catch(e){ console.log('Deling avbrutt',e); }
+    } else {
+      try{ await navigator.clipboard.writeText(location.href); alert('Nettadresse kopiert. Del den med venner!'); }catch(e){ alert('Klarte ikke kopiere: ' + e.message); }
+    }
   });
 });
 
 function formatNumber(n){
-  if(n>=1e9) return (n/1e9).toFixed(1)+' mrd';
-  if(n>=1e6) return (n/1e6).toFixed(1)+' mill';
+  if(n>=1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'') + ' mrd';
+  if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + ' mill';
   return n.toLocaleString('no-NB');
 }
+</script>
+
 
 const playGameBtn=document.getElementById('playGameBtn');
 const gameOverlay=document.getElementById('gameOverlay');
