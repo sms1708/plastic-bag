@@ -347,9 +347,9 @@
 
   function update(){
     ctx.clearRect(0,0,400,600);
-    ctx.fillStyle='rgba(255,255,255,0.7)';
-    ctx.fillRect(basket.x,basket.y,basket.width,basket.height);
-    ctx.strokeRect(basket.x,basket.y,basket.width,basket.height);
+    ctx.font = (basket.height * 1.5) + "px Arial";
+let emoji = poseType === 'papir' ? '📦' : poseType === 'toey' ? '👕' : '🛍️';
+ctx.fillText(emoji, basket.x, basket.y + basket.height * 1.2);
     if(Math.random()<0.03) apples.push({x:Math.random()*370,y:-20});
     apples.forEach(a=>{
       a.y+=speed;
