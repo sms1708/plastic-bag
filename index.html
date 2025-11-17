@@ -444,41 +444,44 @@ closeGameBtn.onclick = () => {
   cancelAnimationFrame(gameLoop);
 };
 
-// Start spill
-function startNewGame(seconds){
-  score = 0;
-  gameTime = seconds;
-  drop = null;
-  canClick = true;
-  gameOverlay.style.display = "flex";
-  spawnItem();
-  timer = setInterval(()=>{
-    gameTime--;
-    if(gameTime <= 0) return endGame();
-  },1000);
-  update();
-}
+document.querySelectorAll(".timeBtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    gameTime = Number(btn.dataset.time);
+    score = 0;
+    document.getElementById("scoreDisplay").textContent = "Poeng: 0";
+    document.getElementById("highscoreDisplay").textContent = "Rekord: " + (localStorage.getItem("hs"+gameTime) || 0);
+    drop = null;
+    canClick = true;
+    playGameBtn.click(); // åpner overlay og starter spill
+  });
+});
 
-// Ny pose
+
+// Oppdatert spawn og håndtering
 function spawnItem(){
-  let emoji = items[Math.floor(Math.random()*items.length)];
-  drop = { emoji, x:Math.random()*360, y:-50 };
+  const types = ["plast","papir","toey"];
+  const index = Math.floor(Math.random() * types.length);
+  const type = types[index];
+  const emojiMap = { plast:"🛍️", papir:"📦", toey:"👕" };
+  drop = { type, emoji: emojiMap[type], x: Math.random()*320+20, y: -60 };
   canClick = true;
 }
 
-// Klikk på beholder
 function chooseBin(type){
-  if(!canClick) return;
+  if(!canClick) return; // hindrer spam
   canClick = false;
-  let correct =
-    (type==="plast" && drop.emoji==="🛍️") ||
-    (type==="papir" && drop.emoji==="📦") ||
-    (type==="toey" && drop.emoji==="👕");
 
-  if(correct) score+=1;
-  else score-=3;
+  if(drop.type === type) score += 1;
+  else score -= 3;
+  if(score < 0) score = 0;
 
-  spawnItem();
+  // Oppdater poeng-display på canvas
+  ctx.clearRect(0,0,400,40);
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Poeng: "+score, 10,30);
+
+  spawnItem(); // neste pose
 }
 
 // Spill-løkken
@@ -487,18 +490,12 @@ function update(){
 
   // tegn pose
   if(drop){
-    drop.y+=speed;
-    ctx.font="50px Arial";
+    drop.y += speed;
+    ctx.font = "50px Arial";
     ctx.fillText(drop.emoji, drop.x, drop.y);
   }
 
-  // hvis den faller utfor
-  if(drop && drop.y > 600){
-    score-=3;
-    spawnItem();
-  }
-
-  // tegn avfall-knapper
+  // tegn avfallsbøtter
   bins.forEach(b=>{
     ctx.font="40px Arial";
     ctx.fillText(b.emoji, b.x, 570);
@@ -510,8 +507,9 @@ function update(){
   ctx.fillText("Poeng: "+score, 10,30);
   ctx.fillText("Tid: "+gameTime, 330,30);
 
-  gameLoop=requestAnimationFrame(update);
+  gameLoop = requestAnimationFrame(update);
 }
+
 
 // klikkområder (tre soner)
 canvas.addEventListener("click",(e)=>{
@@ -522,12 +520,24 @@ canvas.addEventListener("click",(e)=>{
   else if(x < 260) chooseBin("papir");
   else chooseBin("toey");
 });
-
 function endGame(){
   clearInterval(timer);
   canClick=false;
-  alert("Tid ute! Du fikk: "+score+" poeng 🎉");
+
+  // Highscore
+  let hsKey = "hs"+gameTime;
+  let prev = localStorage.getItem(hsKey) || 0;
+  if(score > prev){
+    localStorage.setItem(hsKey, score);
+    alert(`Tid ute! Poeng: ${score}\nNy rekord for ${gameTime} sek! 🎉`);
+  } else {
+    alert(`Tid ute! Poeng: ${score}\nRekord for ${gameTime} sek: ${prev}`);
+  }
+
+  // Oppdater highscore-display
+  document.getElementById("highscoreDisplay").textContent = "Rekord: " + localStorage.getItem(hsKey);
 }
+
 </script>
 </body>
 </html>
