@@ -205,22 +205,6 @@
       <small>Lag en forskjell — ett valg om gangen. © <span id="year"></span></small>
     </footer>
   </div>
-
-  <!-- Spill-overlay -->
-  <div id="gameOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
-    <button id="closeGame" style="position:absolute;top:20px;right:20px;padding:10px 14px;border:none;border-radius:12px;background:#fff;cursor:pointer;font-weight:600;">Lukk spillet</button>
-    <canvas id="gameCanvas" width="400" height="600" style="background:linear-gradient(#a8e063,#56ab2f);border-radius:16px;max-width:90%;"></canvas>
-    <div style="margin-top:12px;">
-      <button class="btn" onclick="startGame('plast')">🛍️ Plastpose</button>
-      <button class="btn" onclick="startGame('papir')">📦 Papirpose</button>
-      <button class="btn" onclick="startGame('toey')">👕 Tøypose</button>
-    </div>
-  </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('year').textContent = new Date().getFullYear();
-
   // tall-animasjon
   const nums = document.querySelectorAll('.num');
   nums.forEach(el => {
@@ -319,15 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-});
-
-function formatNumber(n) {
-  if (n >= 1e9) return (n / 1e9).toFixed(1) + ' mrd';
-  if (n >= 1e6) return (n / 1e6).toFixed(1) + ' mill';
-  return n.toLocaleString('no-NB');
-}
-</script>
-<!-- Tidsvalg + highscore display -->
+      <!-- 🎮 SORTERINGSSPILL — FERDIG OPPSETT 🍃 -->
 <div id="gameMenu" style="text-align:center;margin:20px 0;">
   <h3>Velg spilletid</h3>
   <button class="btn timeBtn" data-time="15">15 sek</button>
@@ -337,207 +313,153 @@ function formatNumber(n) {
   <div id="highscoreDisplay" style="margin-top:6px;font-weight:600;">Rekord: 0</div>
 </div>
 
-<script>
-let gameTime = 30; // standard
-let timer;
-let score = 0;
-let currentItem = null;
-let highscore = {15:0,30:0,60:0};
-
-// last highscore fra localStorage
-['15','30','60'].forEach(t=>{
-  let stored = localStorage.getItem('hs'+t);
-  if(stored) highscore[t]=Number(stored);
-});
-document.getElementById('highscoreDisplay').textContent = 'Rekord: ' + highscore[gameTime];
-
-document.querySelectorAll('.timeBtn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    gameTime = Number(btn.dataset.time);
-    document.getElementById('highscoreDisplay').textContent = 'Rekord: ' + highscore[gameTime];
-    startSortingGame();
-  });
-});
-
-function startSortingGame(){
-  score = 0;
-  document.getElementById('scoreDisplay').textContent = 'Poeng: 0';
-  clearTimeout(timer);
-  spawnNextItem();
-  const start = Date.now();
-  timer = setInterval(()=>{
-    if(Date.now() - start >= gameTime*1000){
-      endGame();
-    }
-  },100);
-}
-
-function spawnNextItem(){
-  const types = ['plast','papir','toey'];
-  currentItem = types[Math.floor(Math.random()*types.length)];
-  alert('Sorter: ' + currentItem); // erstatt med grafikk/emoji senere
-}
-
-function handleSort(choice){
-  if(!currentItem) return;
-  if(choice === currentItem) score += 1;
-  else score -= 3;
-  if(score<0) score = 0;
-  document.getElementById('scoreDisplay').textContent = 'Poeng: ' + score;
-  spawnNextItem();
-}
-
-function endGame(){
-  clearInterval(timer);
-  alert('Tid ute! Poeng: ' + score);
-  if(score > highscore[gameTime]){
-    highscore[gameTime] = score;
-    localStorage.setItem('hs'+gameTime,score);
-    alert('Ny rekord! 🎉');
-  }
-  document.getElementById('highscoreDisplay').textContent = 'Rekord: ' + highscore[gameTime];
-}
-
-// eksempel: knapper for sortering (erstatt med riktige avfallsbøtter)
-['plast','papir','toey'].forEach(type=>{
-  const btn = document.createElement('button');
-  btn.textContent = type.toUpperCase();
-  btn.className = 'btn';
-  btn.style.margin='4px';
-  btn.onclick = ()=>handleSort(type);
-  document.body.appendChild(btn);
-});
-</script>
+<div id="gameOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
+  <button id="closeGame" style="position:absolute;top:20px;right:20px;padding:10px 14px;border:none;border-radius:12px;background:#fff;cursor:pointer;font-weight:600;">Lukk</button>
+  <canvas id="gameCanvas" width="400" height="600" style="background:linear-gradient(#6dd5ed,#2193b0);border-radius:16px;max-width:90%;"></canvas>
+</div>
 
 <script>
-// 🎮 Elementer
-const playGameBtn = document.getElementById("playGameBtn");
-const gameOverlay = document.getElementById("gameOverlay");
-const closeGameBtn = document.getElementById("closeGame");
+// 🎯 Canvas & elementer
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const gameOverlay = document.getElementById("gameOverlay");
+const closeGameBtn = document.getElementById("closeGame");
 
-// Spillvariabler
-let items = ["🛍️","📦","👕"]; // plast, papir, tøy
+// ♻ Spillinnhold
+const bins = [
+  { type:"plast", emoji:"🛍️", x: 40 },
+  { type:"papir", emoji:"📦", x: 170 },
+  { type:"toey", emoji:"👕", x: 300 }
+];
+
+const emojiMap = { plast:"🛍️", papir:"📦", toey:"👕" };
+
+// 📌 Variabler
 let drop = null;
 let speed = 3;
 let score = 0;
-let canClick = true;
-let gameTime = 30; // sekund-modus kan endres senere
+let timeLeft = 0;
 let timer = null;
 let gameLoop = null;
+let canClick = true;
+let highscore = {15:0, 30:0, 60:0};
 
-// Avfalls-knapper
-const bins = [
-  { type: "plast", emoji:"🛍️", x: 40 },
-  { type: "papir", emoji:"📦", x: 170 },
-  { type: "toey", emoji:"👕", x: 300 }
-];
-
-// Åpne spill
-playGameBtn.onclick = () => startNewGame(30);
-
-// Lukk spill
-closeGameBtn.onclick = () => {
-  gameOverlay.style.display = "none";
-  clearInterval(timer);
-  cancelAnimationFrame(gameLoop);
-};
-
-document.querySelectorAll(".timeBtn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    gameTime = Number(btn.dataset.time);
-    score = 0;
-    document.getElementById("scoreDisplay").textContent = "Poeng: 0";
-    document.getElementById("highscoreDisplay").textContent = "Rekord: " + (localStorage.getItem("hs"+gameTime) || 0);
-    drop = null;
-    canClick = true;
-    playGameBtn.click(); // åpner overlay og starter spill
-  });
+// 🔄 Hent highscore
+["15","30","60"].forEach(t=>{
+  const s = localStorage.getItem("hs"+t);
+  if(s) highscore[t] = Number(s);
 });
 
+// 🏁 Start spill
+function startSortingGame(sec){
+  gameOverlay.style.display="flex";
+  score = 0;
+  timeLeft = sec;
+  canClick = true;
 
-// Oppdatert spawn og håndtering
+  document.getElementById("scoreDisplay").textContent = "Poeng: 0";
+  document.getElementById("highscoreDisplay").textContent = "Rekord: " + highscore[sec];
+
+  spawnItem();
+  update();
+
+  timer = setInterval(()=>{
+    timeLeft--;
+    if(timeLeft <= 0) endGame(sec);
+  },1000);
+}
+
+// 🎁 Ny pose
 function spawnItem(){
   const types = ["plast","papir","toey"];
-  const index = Math.floor(Math.random() * types.length);
-  const type = types[index];
-  const emojiMap = { plast:"🛍️", papir:"📦", toey:"👕" };
-  drop = { type, emoji: emojiMap[type], x: Math.random()*320+20, y: -60 };
+  const type = types[Math.floor(Math.random()*types.length)];
+  
+  drop = {
+    type,
+    emoji: emojiMap[type],
+    x: Math.random()*300+50,
+    y: -50
+  };
+
   canClick = true;
 }
 
+// 🖱 Sorteringsvalg
 function chooseBin(type){
-  if(!canClick) return; // hindrer spam
+  if(!canClick) return;
   canClick = false;
 
   if(drop.type === type) score += 1;
   else score -= 3;
   if(score < 0) score = 0;
 
-  // Oppdater poeng-display på canvas
-  ctx.clearRect(0,0,400,40);
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.fillText("Poeng: "+score, 10,30);
-
-  spawnItem(); // neste pose
+  spawnItem();
 }
 
-// Spill-løkken
+// 🎨 Render
 function update(){
   ctx.clearRect(0,0,400,600);
 
-  // tegn pose
-  if(drop){
-    drop.y += speed;
-    ctx.font = "50px Arial";
-    ctx.fillText(drop.emoji, drop.x, drop.y);
+  drop.y += speed;
+  ctx.font = "50px Arial";
+  ctx.fillText(drop.emoji, drop.x, drop.y);
+
+  if(drop.y > 620){
+    score -= 3;
+    if(score < 0) score = 0;
+    spawnItem();
   }
 
-  // tegn avfallsbøtter
-  bins.forEach(b=>{
-    ctx.font="40px Arial";
-    ctx.fillText(b.emoji, b.x, 570);
-  });
+  bins.forEach(b=>ctx.fillText(b.emoji, b.x, 575));
 
-  // poeng og tid
-  ctx.fillStyle="white";
-  ctx.font="20px Arial";
-  ctx.fillText("Poeng: "+score, 10,30);
-  ctx.fillText("Tid: "+gameTime, 330,30);
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Poeng: " + score, 10, 30);
+  ctx.fillText("Tid: " + timeLeft, 330, 30);
 
   gameLoop = requestAnimationFrame(update);
 }
 
-
-// klikkområder (tre soner)
-canvas.addEventListener("click",(e)=>{
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-
+// 👆 Klikk på søppelbøtter
+canvas.addEventListener("click",e=>{
+  const x = e.offsetX;
   if(x < 140) chooseBin("plast");
   else if(x < 260) chooseBin("papir");
   else chooseBin("toey");
 });
-function endGame(){
-  clearInterval(timer);
-  canClick=false;
 
-  // Highscore
-  let hsKey = "hs"+gameTime;
-  let prev = localStorage.getItem(hsKey) || 0;
-  if(score > prev){
-    localStorage.setItem(hsKey, score);
-    alert(`Tid ute! Poeng: ${score}\nNy rekord for ${gameTime} sek! 🎉`);
+// 🛑 Avslutt spill
+function endGame(sec){
+  clearInterval(timer);
+  cancelAnimationFrame(gameLoop);
+  canClick = false;
+
+  if(score > highscore[sec]){
+    highscore[sec] = score;
+    localStorage.setItem("hs"+sec, score);
+    alert(`Tid ute! 🎉 Ny rekord: ${score}`);
   } else {
-    alert(`Tid ute! Poeng: ${score}\nRekord for ${gameTime} sek: ${prev}`);
+    alert(`Tid ute! Du fikk: ${score}`);
   }
 
-  // Oppdater highscore-display
-  document.getElementById("highscoreDisplay").textContent = "Rekord: " + localStorage.getItem(hsKey);
+  document.getElementById("highscoreDisplay").textContent = "Rekord: " + highscore[sec];
 }
 
+// 🟢 Åpne via tids-knapper
+document.querySelectorAll(".timeBtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    startSortingGame(Number(btn.dataset.time));
+  });
+});
+
+// ❌ Lukk-knapp
+closeGameBtn.onclick = ()=>{
+  clearInterval(timer);
+  cancelAnimationFrame(gameLoop);
+  gameOverlay.style.display="none";
+};
 </script>
+
+
 </body>
 </html>
