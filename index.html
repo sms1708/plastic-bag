@@ -327,6 +327,87 @@ function formatNumber(n) {
   return n.toLocaleString('no-NB');
 }
 </script>
+<!-- Tidsvalg + highscore display -->
+<div id="gameMenu" style="text-align:center;margin:20px 0;">
+  <h3>Velg spilletid</h3>
+  <button class="btn timeBtn" data-time="15">15 sek</button>
+  <button class="btn timeBtn" data-time="30">30 sek</button>
+  <button class="btn timeBtn" data-time="60">60 sek</button>
+  <div id="scoreDisplay" style="margin-top:12px;font-weight:600;">Poeng: 0</div>
+  <div id="highscoreDisplay" style="margin-top:6px;font-weight:600;">Rekord: 0</div>
+</div>
+
+<script>
+let gameTime = 30; // standard
+let timer;
+let score = 0;
+let currentItem = null;
+let highscore = {15:0,30:0,60:0};
+
+// last highscore fra localStorage
+['15','30','60'].forEach(t=>{
+  let stored = localStorage.getItem('hs'+t);
+  if(stored) highscore[t]=Number(stored);
+});
+document.getElementById('highscoreDisplay').textContent = 'Rekord: ' + highscore[gameTime];
+
+document.querySelectorAll('.timeBtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    gameTime = Number(btn.dataset.time);
+    document.getElementById('highscoreDisplay').textContent = 'Rekord: ' + highscore[gameTime];
+    startSortingGame();
+  });
+});
+
+function startSortingGame(){
+  score = 0;
+  document.getElementById('scoreDisplay').textContent = 'Poeng: 0';
+  clearTimeout(timer);
+  spawnNextItem();
+  const start = Date.now();
+  timer = setInterval(()=>{
+    if(Date.now() - start >= gameTime*1000){
+      endGame();
+    }
+  },100);
+}
+
+function spawnNextItem(){
+  const types = ['plast','papir','toey'];
+  currentItem = types[Math.floor(Math.random()*types.length)];
+  alert('Sorter: ' + currentItem); // erstatt med grafikk/emoji senere
+}
+
+function handleSort(choice){
+  if(!currentItem) return;
+  if(choice === currentItem) score += 1;
+  else score -= 3;
+  if(score<0) score = 0;
+  document.getElementById('scoreDisplay').textContent = 'Poeng: ' + score;
+  spawnNextItem();
+}
+
+function endGame(){
+  clearInterval(timer);
+  alert('Tid ute! Poeng: ' + score);
+  if(score > highscore[gameTime]){
+    highscore[gameTime] = score;
+    localStorage.setItem('hs'+gameTime,score);
+    alert('Ny rekord! 🎉');
+  }
+  document.getElementById('highscoreDisplay').textContent = 'Rekord: ' + highscore[gameTime];
+}
+
+// eksempel: knapper for sortering (erstatt med riktige avfallsbøtter)
+['plast','papir','toey'].forEach(type=>{
+  const btn = document.createElement('button');
+  btn.textContent = type.toUpperCase();
+  btn.className = 'btn';
+  btn.style.margin='4px';
+  btn.onclick = ()=>handleSort(type);
+  document.body.appendChild(btn);
+});
+</script>
 
 <script>
 // 🎮 Elementer
