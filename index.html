@@ -197,25 +197,11 @@
       <a href="https://www.wwf.no/dyr-og-natur/hav-og-fiske">Les mer hos WWF →</a>
     </section>
 
-    <div style="margin-top:20px; text-align:center;">
-      <button class="btn" id="playGameBtn">Spill: Fang eple i posen 🍎</button>
-    </div>
-
     <footer>
       <small>Lag en forskjell — ett valg om gangen. © <span id="year"></span></small>
     </footer>
   </div>
 
-  <!-- Spill-overlay -->
-  <div id="gameOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
-    <button id="closeGame" style="position:absolute;top:20px;right:20px;padding:10px 14px;border:none;border-radius:12px;background:#fff;cursor:pointer;font-weight:600;">Lukk spillet</button>
-    <canvas id="gameCanvas" width="400" height="600" style="background:linear-gradient(#a8e063,#56ab2f);border-radius:16px;max-width:90%;"></canvas>
-    <div style="margin-top:12px;">
-      <button class="btn" onclick="startGame('plast')">🛍️ Plastpose</button>
-      <button class="btn" onclick="startGame('papir')">📦 Papirpose</button>
-      <button class="btn" onclick="startGame('toey')">👕 Tøypose</button>
-    </div>
-  </div>
 
   <!-- Paktboble + del -->
   <script>
@@ -288,102 +274,6 @@
     if(n>=1e6) return (n/1e6).toFixed(1)+' mill';
     return n.toLocaleString('no-NB');
   }
-  </script>
-
-  <!-- Spillkoden (uforandret) -->
-  <script>
-  const playGameBtn=document.getElementById('playGameBtn');
-  const gameOverlay=document.getElementById('gameOverlay');
-  const closeGameBtn=document.getElementById('closeGame');
-  const gameCanvas=document.getElementById('gameCanvas');
-  const ctx=gameCanvas.getContext('2d');
-  const messageBox=document.createElement('div');
-  messageBox.style.position='fixed';
-  messageBox.style.top='50%';
-  messageBox.style.left='50%';
-  messageBox.style.transform='translate(-50%, -50%)';
-  messageBox.style.background='white';
-  messageBox.style.padding='20px';
-  messageBox.style.borderRadius='12px';
-  messageBox.style.boxShadow='0 4px 20px rgba(0,0,0,0.2)';
-  messageBox.style.display='none';
-  messageBox.style.zIndex='10000';
-  messageBox.style.textAlign='center';
-  messageBox.innerHTML=`<p id="msgText" style="margin-bottom:10px;"></p>
-  <button id="msgBtn" class="btn">OK</button>`;
-  document.body.appendChild(messageBox);
-
-  function showMessage(text,callback){
-    document.getElementById('msgText').textContent=text;
-    messageBox.style.display='block';
-    document.getElementById('msgBtn').onclick=()=>{
-      messageBox.style.display='none';
-      if(callback) callback();
-    };
-  }
-
-  let basket={x:175,y:520,width:50,height:50};
-  let apples=[];
-  let speed=2;
-  let caught=0;
-  let limit=10;
-  let gameInterval;
-  let poseType='';
-  let isTouching=false;
-
-  playGameBtn.onclick=()=>{gameOverlay.style.display='flex';};
-  closeGameBtn.onclick=()=>{gameOverlay.style.display='none';cancelAnimationFrame(gameInterval);};
-
-  function startGame(type){
-    poseType=type;
-    apples=[];caught=0;
-    speed=2;
-    if(type==='plast')limit=10;
-    if(type==='papir')limit=25;
-    if(type==='toey')limit=100;
-    basket.x=175;
-    gameInterval=requestAnimationFrame(update);
-  }
-
-  function update(){
-    ctx.clearRect(0,0,400,600);
-    ctx.font = (basket.height * 1.5) + "px Arial";
-let emoji = poseType === 'papir' ? '📦' : poseType === 'toey' ? '👕' : '🛍️';
-ctx.fillText(emoji, basket.x, basket.y + basket.height * 1.2);
-    if(Math.random()<0.03) apples.push({x:Math.random()*370,y:-20});
-    apples.forEach(a=>{
-      a.y+=speed;
-      ctx.beginPath();ctx.arc(a.x,a.y,10,0,Math.PI*2);ctx.fillStyle='red';ctx.fill();
-    });
-    apples=apples.filter(a=>{
-      if(a.y>600)return false;
-      if(a.y>basket.y&&a.x>basket.x&&a.x<basket.x+basket.width){caught++;return false;}
-      return true;
-    });
-    if(caught>=limit){
-      showMessage(`Posen din ble ødelagt etter ${limit} forsøk!`,()=>cancelAnimationFrame(gameInterval));
-      return;
-    }
-    gameInterval=requestAnimationFrame(update);
-  }
-
-  window.addEventListener('keydown',e=>{
-    if(e.key==='a'||e.key==='A')basket.x-=20;
-    if(e.key==='d'||e.key==='D')basket.x+=20;
-    if(basket.x<0)basket.x=0;
-    if(basket.x>350)basket.x=350;
-  });
-  gameCanvas.addEventListener('touchstart',e=>{isTouching=true;});
-  gameCanvas.addEventListener('touchend',()=>{isTouching=false;});
-  gameCanvas.addEventListener('touchmove',e=>{
-    if(isTouching){
-      const rect=gameCanvas.getBoundingClientRect();
-      const touchX=e.touches[0].clientX-rect.left;
-      basket.x=touchX-basket.width/2;
-      if(basket.x<0)basket.x=0;
-      if(basket.x>350)basket.x=350;
-    }
-  });
   </script>
 </body>
 </html>
