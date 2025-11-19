@@ -6,6 +6,22 @@
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
   plausible.init()
 </script>
+<style>
+  /* Grønne hjerter animasjon */
+  .heart {
+    position: fixed;
+    font-size: 24px;
+    color: #2aa86a;
+    pointer-events: none;
+    animation: flyUp 1s forwards;
+    z-index: 10000;
+  }
+
+  @keyframes flyUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+  }
+</style>
 
 <head>
   <meta charset="utf-8" />
