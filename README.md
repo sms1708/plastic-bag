@@ -1,2 +1,2 @@
 # plastic-bag
-test til skoleprosjekt
+Dette er en nettside til et skoleprosjekt om klima.
