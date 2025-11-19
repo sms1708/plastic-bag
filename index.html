@@ -298,5 +298,28 @@
       });
     });
   </script>
+  <script>
+  const pledgeBtn = document.getElementById('pledgeBtn');
+
+  function createHeart(x, y) {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.style.left = x + 'px';
+    heart.style.top = y + 'px';
+    heart.textContent = '💚';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1000);
+  }
+
+  pledgeBtn.addEventListener('click', () => {
+    const rect = pledgeBtn.getBoundingClientRect();
+    for (let i = 0; i < 5; i++) {
+      const offsetX = Math.random() * rect.width - rect.width / 2;
+      const offsetY = Math.random() * rect.height - rect.height / 2;
+      createHeart(rect.left + rect.width / 2 + offsetX, rect.top + rect.height / 2 + offsetY);
+    }
+  });
+</script>
+
 </body>
 </html>
