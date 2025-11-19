@@ -6,6 +6,8 @@
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
   plausible.init()
 </script>
+
+<head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Spar Jorda — Si nei til plastposer</title>
@@ -272,7 +274,13 @@
     }
   });
 </script>
-<script>
+
+
+  <!-- Paktboble + del -->
+  <script>
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('year').textContent = new Date().getFullYear();
+
     // tall-animasjon
     const nums=document.querySelectorAll('.num');
     nums.forEach(el=>{
@@ -297,29 +305,48 @@
         else {btn.classList.add('wrong');result.textContent='Dessverre nei — prøv igjen eller les tipsene ovenfor.'}
       });
     });
-  </script>
-  <script>
-  const pledgeBtn = document.getElementById('pledgeBtn');
 
-  function createHeart(x, y) {
-    const heart = document.createElement('div');
-    heart.className = 'heart';
-    heart.style.left = x + 'px';
-    heart.style.top = y + 'px';
-    heart.textContent = '💚';
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 1000);
-  }
+    // paktboble
+    const pledgeBtn=document.getElementById('pledgeBtn');
+    const shareBtn=document.getElementById('shareBtn');
+    const bubble=document.createElement('div');
+    bubble.id='pledgeBubble';
+    bubble.style=`
+      display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;
+    `;
+    bubble.innerHTML=`
+      <div style="background:white;padding:24px;border-radius:16px;max-width:320px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <h3>🌍 Ta en pakt</h3>
+        <p style="color:#555;font-size:0.95rem;margin-bottom:14px;">Vil du love å bruke gjenbrukbare poser når du kan?</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button id="confirmPledge" class="btn">Ja, jeg lover 💚</button>
+          <button id="cancelPledge" class="btn ghost">Lukk</button>
+        </div>
+        <div style="margin-top:14px;">
+          <button id="shareInsideBubble" class="btn" style="background:#2aa86a;">Del</button>
+        </div>
+      </div>`;
+    document.body.appendChild(bubble);
 
-  pledgeBtn.addEventListener('click', () => {
-    const rect = pledgeBtn.getBoundingClientRect();
-    for (let i = 0; i < 5; i++) {
-      const offsetX = Math.random() * rect.width - rect.width / 2;
-      const offsetY = Math.random() * rect.height - rect.height / 2;
-      createHeart(rect.left + rect.width / 2 + offsetX, rect.top + rect.height / 2 + offsetY);
-    }
+    pledgeBtn.addEventListener('click',()=>{bubble.style.display='flex';});
+    bubble.querySelector('#cancelPledge').addEventListener('click',()=>{bubble.style.display='none';});
+    bubble.querySelector('#confirmPledge').addEventListener('click',()=>{
+      localStorage.setItem('pledge','yes');
+      alert('Takk! Du har tatt en pakt 💚');
+      bubble.style.display='none';
+    });
+    bubble.querySelector('#shareInsideBubble').addEventListener('click',async()=>{
+      const shareData={title:document.title,text:'Si nei til plastposer — bruk gjenbrukbare poser!',url:location.href};
+      if(navigator.share){try{await navigator.share(shareData);}catch(e){}}
+      else {await navigator.clipboard.writeText(location.href);alert('Lenke kopiert!');}
+    });
   });
-</script>
-
+  function formatNumber(n){
+    if(n>=1e9) return (n/1e9).toFixed(1)+' mrd';
+    if(n>=1e6) return (n/1e6).toFixed(1)+' mill';
+    return n.toLocaleString('no-NB');
+  }
+  </script>
 </body>
 </html>
