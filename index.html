@@ -194,14 +194,86 @@
         <li>Selv om du ikke kaster plastposer i naturen, er du med på forsøplingen. Plastposer tåler lite og blir fort ødelagt, da kan det komme mikroplast som havner i naturen.</li>
         <li>En tøypose kan holde hundrevis av ganger, det sparer både penger og miljøet.</li>
       </ul>
-      <p class="muted"> Dette var bare et skoleprosjekt, men hvis du vil lese mer eller støtte, kan du gå inn på WWF i linken under. </p>
-      <a href="https://www.wwf.no/dyr-og-natur/hav-og-fiske">Les mer hos WWF →</a>
+      
     </section>
 
     <footer>
       <small>Lag en forskjell — ett valg om gangen. © <span id="year"></span></small>
     </footer>
   </div>
+<!-- Kilder-panel -->
+<div class="sources-panel">
+  <button class="sources-toggle">Kilder &#x25BC;</button>
+  <ul class="sources-list">
+    <li><a href="https://chatgpt.com/" target="_blank">Bilde fra ChatGPT</a></li>
+    <li><a href="https://www.wwf.no/dyr-og-natur/hav-og-fiske" target="_blank">WWF</a></li>
+    <li><a href="https://handelensmiljofond.no/det-store-posekuttet/bruk-ombruks-alternativer" target="_blank">handelens miljøfond</a>
+        
+    </li>
+  </ul>
+</div>
+
+<style>
+  .sources-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-family: sans-serif;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    width: 200px;
+  }
+
+  .sources-toggle {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    background: #007BFF;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .sources-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    display: none;
+  }
+
+  .sources-list li {
+    margin-bottom: 5px;
+  }
+
+  .sources-list li a {
+    text-decoration: none;
+    color: #007BFF;
+  }
+
+  .sources-list li a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  const toggleButton = document.querySelector('.sources-toggle');
+  const sourcesList = document.querySelector('.sources-list');
+
+  toggleButton.addEventListener('click', () => {
+    if (sourcesList.style.display === 'block') {
+      sourcesList.style.display = 'none';
+      toggleButton.innerHTML = 'Kilder &#x25BC;';
+    } else {
+      sourcesList.style.display = 'block';
+      toggleButton.innerHTML = 'Kilder &#x25B2;';
+    }
+  });
+</script>
 
 
   <!-- Paktboble + del -->
