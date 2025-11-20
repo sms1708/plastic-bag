@@ -190,7 +190,18 @@
         <li>Selv om du ikke kaster plastposer i naturen, er du med på forsøplingen. Plastposer tåler lite og blir fort ødelagt, da kan det komme mikroplast som havner i naturen.</li>
         <li>En tøypose kan holde hundrevis av ganger, det sparer både penger og miljøet.</li>
       </ul>
-      
+      <button onclick="delSide()" style="
+  padding:10px 18px;
+  border:none;
+  background:#0077ff;
+  color:white;
+  font-size:16px;
+  border-radius:8px;
+  cursor:pointer;
+">
+  Del denne siden
+</button>
+
     </section>
 
     <footer>
@@ -301,5 +312,25 @@
       });
     });
   </script>
+  <script>
+function delSide() {
+  const url = window.location.href;
+
+  // Prøv native deling på mobil
+  if (navigator.share) {
+    navigator.share({
+      title: document.title,
+      url: url
+    })
+    .catch(() => {});
+  } 
+  else {
+    // Fallback: kopier lenke
+    navigator.clipboard.writeText(url);
+    alert("Lenke kopiert: " + url);
+  }
+}
+</script>
+
 </body>
 </html>
