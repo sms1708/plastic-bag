@@ -155,10 +155,6 @@
             </ul>
           </div>
         </div>
-
-        <div class="cta" style="margin-top:14px;">
-          <button class="btn" id="pledgeBtn">Del det grønne budskapet</button>
-        </div>
       </section>
 
       <img 
@@ -274,12 +270,9 @@
     }
   });
 </script>
- <!-- Paktboble + del -->
-  <script>
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.getElementById('year').textContent = new Date().getFullYear();
 
     // tall-animasjon
+  <script>
     const nums=document.querySelectorAll('.num');
     nums.forEach(el=>{
       const target=Number(el.dataset.target)||0;
@@ -303,48 +296,6 @@
         else {btn.classList.add('wrong');result.textContent='Dessverre nei — prøv igjen eller les tipsene ovenfor.'}
       });
     });
-
-    // paktboble
-    const pledgeBtn=document.getElementById('pledgeBtn');
-    const shareBtn=document.getElementById('shareBtn');
-    const bubble=document.createElement('div');
-    bubble.id='pledgeBubble';
-    bubble.style=`
-      display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-      background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;
-    `;
-    bubble.innerHTML=`
-      <div style="background:white;padding:24px;border-radius:16px;max-width:320px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-        <h3>🌍 Ta en pakt</h3>
-        <p style="color:#555;font-size:0.95rem;margin-bottom:14px;">Vil du love å bruke gjenbrukbare poser når du kan?</p>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <button id="confirmPledge" class="btn">Ja, jeg lover 💚</button>
-          <button id="cancelPledge" class="btn ghost">Lukk</button>
-        </div>
-        <div style="margin-top:14px;">
-          <button id="shareInsideBubble" class="btn" style="background:#2aa86a;">Del</button>
-        </div>
-      </div>`;
-    document.body.appendChild(bubble);
-
-    pledgeBtn.addEventListener('click',()=>{bubble.style.display='flex';});
-    bubble.querySelector('#cancelPledge').addEventListener('click',()=>{bubble.style.display='none';});
-    bubble.querySelector('#confirmPledge').addEventListener('click',()=>{
-      localStorage.setItem('pledge','yes');
-      alert('Takk! Du har tatt en pakt 💚');
-      bubble.style.display='none';
-    });
-    bubble.querySelector('#shareInsideBubble').addEventListener('click',async()=>{
-      const shareData={title:document.title,text:'Si nei til plastposer — bruk gjenbrukbare poser!',url:location.href};
-      if(navigator.share){try{await navigator.share(shareData);}catch(e){}}
-      else {await navigator.clipboard.writeText(location.href);alert('Lenke kopiert!');}
-    });
-  });
-  function formatNumber(n){
-    if(n>=1e9) return (n/1e9).toFixed(1)+' mrd';
-    if(n>=1e6) return (n/1e6).toFixed(1)+' mill';
-    return n.toLocaleString('no-NB');
-  }
   </script>
 </body>
 </html>
